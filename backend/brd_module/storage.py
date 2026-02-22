@@ -373,3 +373,77 @@ def get_current_snapshot_id(session_id: str) -> str:
         return row[0] if row else "adhoc-snapshot"
     finally:
         conn.close()
+
+
+def copy_session_chunks(src_session_id: str, dst_session_id: str) -> int:
+    """
+    Copy all classified chunks from src_session_id into dst_session_id.
+    Clears dst_session_id first so repeated calls do not accumulate duplicates.
+    Returns the number of chunks copied.
+    """
+    conn, db_type = get_connection()
+    copied = 0
+    try:
+        cur = conn.cursor()
+
+        delete_query = "DELETE FROM classified_chunks WHERE session_id = %s"
+        if db_type == "sqlite":
+            delete_query = delete_query.replace("%s", "?")
+        cur.execute(delete_query, (dst_session_id,))
+
+        select_query = (
+            "SELECT source_ref, label, suppressed, manually_restored, "
+            "flagged_for_review, data FROM classified_chunks WHERE session_id = %s"
+        )
+        if db_type == "sqlite":
+            select_query = select_query.replace("%s", "?")
+        cur.execute(select_query, (src_session_id,))
+        rows = cur.fetchall()
+
+        insert_query = """
+            INSERT INTO classified_chunks
+                (chunk_id, session_id, source_ref, label, suppressed,
+                 manually_restored, flagged_for_review, created_at, data)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """
+        if db_type == "sqlite":
+            insert_query = insert_query.replace("%s", "?")
+
+        for row in rows:
+            if db_type == "postgres":
+                source_ref = row["source_ref"]
+                label = row["label"]
+                suppressed = row["suppressed"]
+                manually_restored = row["manually_restored"]
+                flagged_for_review = row["flagged_for_review"]
+                data = row["data"]
+            else:
+                source_ref, label, suppressed, manually_restored, flagged_for_review, data = row
+
+            new_id = str(uuid.uuid4())
+            if isinstance(data, str):
+                data = json.loads(data)
+
+            data["session_id"] = dst_session_id
+            data["chunk_id"] = new_id
+
+            cur.execute(
+                insert_query,
+                (
+                    new_id,
+                    dst_session_id,
+                    source_ref,
+                    label,
+                    suppressed,
+                    manually_restored,
+                    flagged_for_review,
+                    datetime.now(timezone.utc).isoformat() if db_type == "sqlite" else datetime.now(timezone.utc),
+                    json.dumps(data),
+                ),
+            )
+            copied += 1
+
+        conn.commit()
+        return copied
+    finally:
+        conn.close()
