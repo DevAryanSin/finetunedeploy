@@ -12,10 +12,11 @@ WORKDIR /app
 
 # Install system dependencies
 # We need these for psycopg2, WeasyPrint, and other libraries
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
-    # WeasyPrint dependencies
+    # WeasyPrint dependencies please 
     python3-pip \
     python3-setuptools \
     python3-wheel \
