@@ -1,12 +1,6 @@
-import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import sys
-
-# Add the parent directory and nested modules so we can import them
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from .routers import sessions, ingest, review, brd, hitl
+from api.routers import sessions, ingest, review, brd, hitl
 from brd_module.storage import init_db
 
 # Initialize database (PG or SQLite fallback) on startup

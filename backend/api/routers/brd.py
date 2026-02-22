@@ -1,13 +1,8 @@
-import os
-import sys
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response, JSONResponse
 from pydantic import BaseModel
 from typing import List, Dict, Any
 import markdown
-
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(PROJECT_ROOT)
 
 from brd_module.brd_pipeline import run_brd_generation
 from brd_module.validator import validate_brd

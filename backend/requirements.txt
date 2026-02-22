@@ -1,6 +1,7 @@
 # API and Web Framework
 fastapi>=0.100.0
 uvicorn>=0.22.0
+markdown>=3.5.0
 
 # LLM and AI
 groq>=0.4.0

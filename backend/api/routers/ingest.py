@@ -1,18 +1,16 @@
 import os
-import sys
 import csv
 import io
+from pathlib import Path
 from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File, Form
 from pydantic import BaseModel
 from typing import List
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(PROJECT_ROOT)
-sys.path.append(os.path.join(PROJECT_ROOT, "Noise filter module"))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 from brd_module.storage import store_chunks
-from storage import copy_session_chunks
-from classifier import classify_chunks
+from brd_module.storage import copy_session_chunks
+from noise_filter_module.classifier import classify_chunks
 
 # Session ID of the pre-classified 300-email Enron demo cache
 DEMO_CACHE_SESSION_ID = os.environ.get("DEMO_CACHE_SESSION_ID", "default_session")
@@ -33,7 +31,15 @@ class IngestRequest(BaseModel):
 
 def _load_api_key():
     from dotenv import load_dotenv
-    load_dotenv(os.path.join(PROJECT_ROOT, "Noise filter module", ".env"))
+
+    for candidate in (
+        PROJECT_ROOT / "noise_filter_module" / ".env",
+        PROJECT_ROOT / "Noise filter module" / ".env",
+    ):
+        if candidate.exists():
+            load_dotenv(candidate)
+            break
+
     return os.environ.get("GROQ_CLOUD_API")
 
 def _process_and_store(sess_id: str, chunk_dicts: list):
@@ -106,11 +112,20 @@ async def ingest_demo_dataset(session_id: str, limit: int = 80):
     import threading as _threading
     from fastapi.responses import StreamingResponse
 
-    emails_path = os.path.join(
-        PROJECT_ROOT, "Noise filter module", "emails.csv"
-    )
-    if not os.path.exists(emails_path):
-        raise HTTPException(status_code=404, detail=f"Demo dataset not found at: {emails_path}")
+    emails_path = None
+    for candidate in (
+        PROJECT_ROOT / "noise_filter_module" / "emails.csv",
+        PROJECT_ROOT / "Noise filter module" / "emails.csv",
+    ):
+        if candidate.exists():
+            emails_path = candidate
+            break
+
+    if emails_path is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Demo dataset not found at noise_filter_module/emails.csv",
+        )
 
     def _parse_email(raw: str):
         sender, subject, body_lines, in_body = "Unknown", "", [], False
@@ -164,8 +179,7 @@ async def ingest_demo_dataset(session_id: str, limit: int = 80):
             classified = classify_chunks(chunk_dicts, api_key=api_key, log_fn=log)
             for c in classified:
                 c.session_id = session_id
-            from storage import store_chunks as _store
-            _store(classified)
+            store_chunks(classified)
             log(f"[DEMO INGEST] {'─'*60}")
             log(f"[DEMO INGEST] ✅ Complete! {len(classified)} chunks stored for session '{session_id}'.")
         except Exception as e:

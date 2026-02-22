@@ -24,8 +24,8 @@ from pydantic import BaseModel
 from typing import Optional
 from io import BytesIO
 
-# Import BRD module functions (relative import - same directory)
-from main import (
+# Import BRD module functions
+from brd_module.main import (
     run_full_pipeline,
     generate_brd,
     validate_brd_sections,

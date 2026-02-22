@@ -7,12 +7,12 @@ from __future__ import annotations
 
 import json
 import os
-from typing import List
+from typing import Dict, List
 
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
-from schema import ClassifiedChunk, SignalLabel
+from brd_module.schema import ClassifiedChunk, SignalLabel
 
 from dotenv import load_dotenv
 from pathlib import Path

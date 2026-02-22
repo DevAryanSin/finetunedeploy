@@ -1,11 +1,6 @@
-import os
-import sys
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List, Dict, Any
-
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.append(PROJECT_ROOT)
 
 from brd_module.hitl.orchestrator import submit_ad_hoc_prompt, get_hitl_status
 
