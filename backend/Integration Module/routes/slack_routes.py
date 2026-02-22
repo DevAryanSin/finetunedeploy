@@ -1,6 +1,14 @@
 from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import RedirectResponse
 import os
+import sys
+from pathlib import Path
+
+# Ensure Integration Module directory is on sys.path for bare imports
+_INTEGRATION_DIR = Path(__file__).resolve().parents[1]
+if str(_INTEGRATION_DIR) not in sys.path:
+    sys.path.insert(0, str(_INTEGRATION_DIR))
+
 import slack_auth
 import pdf
 from state import user_credentials

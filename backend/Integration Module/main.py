@@ -1,7 +1,14 @@
 import os
+import sys
 from fastapi import FastAPI
 from dotenv import load_dotenv
 import uvicorn
+from pathlib import Path
+
+# Ensure this directory is on sys.path so relative imports work from any CWD
+_HERE = Path(__file__).resolve().parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
 
 # Import routers
 from routes.gmail_routes import router as gmail_router

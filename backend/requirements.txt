@@ -16,6 +16,7 @@ slack-sdk>=3.21.0
 # Data Processing and Parsing
 pandas>=2.0.0
 pydantic>=2.0.0
+python-multipart>=0.0.6
 python-dotenv>=1.0.0
 pymupdf>=1.22.0  # Used as 'fitz'
 

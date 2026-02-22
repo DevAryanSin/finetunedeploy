@@ -12,7 +12,10 @@ from typing import List
 import psycopg2
 from psycopg2.extras import RealDictCursor, execute_values
 
-from schema import ClassifiedChunk, SignalLabel
+try:
+    from schema import ClassifiedChunk, SignalLabel
+except ImportError:
+    from noise_filter_module.schema import ClassifiedChunk, SignalLabel
 
 from dotenv import load_dotenv
 from pathlib import Path

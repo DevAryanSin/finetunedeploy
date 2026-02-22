@@ -1,4 +1,12 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
+import sys
+from pathlib import Path
+
+# Ensure Integration Module directory is on sys.path for bare imports
+_INTEGRATION_DIR = Path(__file__).resolve().parents[1]
+if str(_INTEGRATION_DIR) not in sys.path:
+    sys.path.insert(0, str(_INTEGRATION_DIR))
+
 from pdf import extract_text_from_pdf_bytes, extract_text_from_docx_bytes
 
 router = APIRouter(

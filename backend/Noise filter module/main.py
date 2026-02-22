@@ -20,8 +20,12 @@ from dotenv import load_dotenv
 _HERE = Path(__file__).parent
 load_dotenv(_HERE / ".env")
 
-from classifier import classify_chunks
-from enron_parser import parse_to_chunks
+try:
+    from classifier import classify_chunks
+    from enron_parser import parse_to_chunks
+except ImportError:
+    from noise_filter_module.classifier import classify_chunks
+    from noise_filter_module.enron_parser import parse_to_chunks
 
 # ---------------------------------------------------------------------------
 # Config
@@ -128,7 +132,10 @@ def main():
     print(f"  → {len(unique_chunks)} unique chunks after content deduplication\n")
     chunks = unique_chunks
     # Initialize the database
-    from storage import init_db, store_chunks
+    try:
+        from storage import init_db, store_chunks
+    except ImportError:
+        from noise_filter_module.storage import init_db, store_chunks
     init_db()
     print("AKS Database initialized.")
 
