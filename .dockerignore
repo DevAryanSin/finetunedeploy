@@ -12,11 +12,11 @@ node_modules/
 dist/
 build/
 *.log
-
 *.sqlite
 *.sqlite3
 .env
 **/.env
 docker-compose.yml
 tests/
-
+README.md
+pipeline_debug.log
