@@ -12,7 +12,7 @@ node_modules/
 dist/
 build/
 *.log
-*.db
+
 *.sqlite
 *.sqlite3
 .env
