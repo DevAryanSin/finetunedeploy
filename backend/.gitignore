@@ -2,6 +2,7 @@
 .env
 .env.backup
 .env.bak
+vercel.env
 
 # Databases
 
